@@ -1,5 +1,5 @@
 -- ============================================================
--- Archivo: 03_datos_prueba.sql
+-- Archivo: datos_prueba.sql
 -- 15 perritos de prueba, mínimo exigido por el PDF, con foto,
 -- ubicación (zona de Saltillo, Coahuila, a modo de ejemplo) y
 -- fecha de registro.
