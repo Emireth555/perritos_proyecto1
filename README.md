@@ -25,9 +25,9 @@ Aplicación web para registrar perritos de la calle: quien encuentra uno le toma
 
 | Integrante | Usuario de GitHub | Rol |
 |---|---|---|
-| <<COMPLETAR: nombre completo>> | Memo8aaaa | **DBA**: modelo de datos, script de creación de la base, catálogos, datos de prueba, respaldo |
-| <<COMPLETAR: nombre completo>> | Emireth555 | <<CONFIRMAR: Frontend / Backend>> |
-| <<COMPLETAR: nombre completo>> | <<COMPLETAR: usuario>> | <<CONFIRMAR: Frontend / Backend>> |
+| <<COMPLETAR: Estrella Luna Vazquez>> | Memo8aaaa | <<DBA>> |
+| <<COMPLETAR: Johana Emireth Cerda Flores>> | Emireth555 | <<Frontend >> |
+| <<COMPLETAR: Estrella Luna Vazquez y Johana Emireth Cerda Flores>> | <<COMPLETAR: Memo8aaaa y Emireth555>> | <<Backend>> |
 
 ### Estructura del repositorio
 
@@ -46,7 +46,8 @@ perritos_proyecto1/
 │   │   └── imagenes.js       entrega las fotos por un endpoint
 │   └── tests/
 │       └── doble-envio.js    prueba de idempotencia
-├── frontend/                 HTML, CSS y JavaScript (mapa con Leaflet)
+├── frontend/      
+    |── assets          HTML, CSS y JavaScript (mapa con Leaflet)
 │   ├── index.html
 │   ├── app.js
 │   └── styles.css
@@ -69,7 +70,7 @@ Probado en Windows 10/11 con PowerShell.
 
 | Componente | Versión | Cómo verificarla |
 |---|---|---|
-| Git | <<COMPLETAR: salida de `git --version`>> | `git --version` |
+| Git | 2.55.0.windows.5 | `git --version` |
 | Node.js | v24.21.0 | `node --version` |
 | npm | 11.19.0 | `npm --version` |
 | MySQL Server (Community) | 8.0.46 (mínimo 8.0.16, por el `CHECK` del esquema) | `mysql --version` |
@@ -79,15 +80,13 @@ Dependencias del backend (se instalan solas con `npm install`; sus versiones que
 
 | Paquete | Versión |
 |---|---|
-| express | <<COMPLETAR>> |
-| cors | <<COMPLETAR>> |
-| dotenv | <<COMPLETAR>> |
-| mysql2 | <<COMPLETAR>> |
+| express | 4.22.3 |
+| cors | 2.8.6 |
+| dotenv | 16.6.1 |
+| mysql2 | 3.24.4 |
 | multer | 2.4.0 |
 
 Librería del frontend: Leaflet 1.9.4 (se carga desde internet, hace falta conexión).
-
-> Para llenar las versiones: en la carpeta `backend/`, `npm list --depth=0` muestra todas.
 
 ---
 
