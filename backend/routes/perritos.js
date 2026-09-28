@@ -153,16 +153,6 @@ router.get('/estadisticas/por-color', async (req, res) => {
     }
 });
 
-// GET /api/perritos/imagenes/:archivo — sirve la imagen vía backend
-router.get('/imagenes/:archivo', (req, res) => {
-    const archivo = path.basename(req.params.archivo);
-    const ruta = path.join(RUTA_IMAGENES, archivo);
-    if (!fs.existsSync(ruta)) {
-        return res.status(404).json({ error: 'Imagen no encontrada' });
-    }
-    res.sendFile(ruta);
-});
-
 // GET /api/perritos/:id — detalle
 router.get('/:id', async (req, res) => {
     try {
