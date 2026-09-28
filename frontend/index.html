@@ -1,1 +1,139 @@
-<!-- Estructura principal del formulario de registro -->.
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Perritos 🐾</title>
+
+  <!-- CSS de Leaflet (Mapa) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Fuente Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+ <div class="main-container">
+    <header class="header-title">
+      <h1>🐾 Registro de Perritos 🐾</h1>
+      <p>Reporta un perrito de la calle para que rescates y vecinos puedan ubicarlo.</p>
+    </header>
+
+    <!-- Navegación por pestañas -->
+    <nav class="tabs-nav">
+      <button data-vista="registro" class="tab activo">Registrar</button>
+      <button data-vista="mapa" class="tab">Mapa</button>
+      <button data-vista="lista" class="tab">Lista</button>
+    </nav>
+
+    <!-- ===================== VISTA: REGISTRO ===================== -->
+    <section id="vista-registro" class="vista">
+      <form id="form-perrito" class="card-form">
+
+        <!-- 📸 Fotografía (Cámara / Galería) -->
+        <div class="form-group">
+          <label for="foto">Fotografía <span class="required">*</span></label>
+          <input type="file" id="foto" name="foto" accept="image/jpeg,image/png,image/webp" capture="environment" required>
+          <small class="help-text">Puedes tomar una foto directa con la cámara o elegir una de tu galería (JPG, PNG, WEBP).</small>
+          <div id="preview-container" class="preview-container hidden">
+            <img id="foto-preview" src="" alt="Vista previa de la foto">
+          </div>
+        </div>
+
+        <!-- Nombre -->
+        <div class="form-group">
+          <label for="nombre">Nombre o apodo asignado <span class="required">*</span></label>
+          <input type="text" id="nombre" name="nombre" placeholder="Ej. Solovino, Manchas" required>
+        </div>
+
+        <!-- Raza -->
+        <div class="form-group">
+          <label for="raza_id">Raza</label>
+          <select id="raza_id" name="raza_id">
+            <option value="">Cargando razas...</option>
+          </select>
+        </div>
+
+        <!-- Color Principal (Obligatorio) -->
+        <div class="form-group">
+          <label for="color_principal_id">Color Principal <span class="required">*</span></label>
+          <select id="color_principal_id" name="color_principal_id" required>
+            <option value="" disabled selected>Selecciona el color principal</option>
+          </select>
+        </div>
+
+        <!-- Colores Adicionales (Opcionales, máx 2) -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="color_secundario_1_id">Color adicional 1</label>
+            <select id="color_secundario_1_id" name="color_secundario_1_id">
+              <option value="">Ninguno</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="color_secundario_2_id">Color adicional 2</label>
+            <select id="color_secundario_2_id" name="color_secundario_2_id">
+              <option value="">Ninguno</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 📍 Ubicación en el Mapa -->
+        <div class="form-group">
+          <label>Ubicación donde se vio <span class="required">*</span></label>
+          <button type="button" id="btn-location" class="btn-secondary">
+            📍 Usar mi ubicación actual (GPS)
+          </button>
+          <div id="map" class="map-container"></div>
+          <small class="help-text">Puedes mover el marcador azul en el mapa para ajustar la posición exacta.</small>
+
+          <!-- Coordenadas ocultas que se mandan al backend -->
+          <!-- OJO: sin "required" aquí -- un input hidden con required rompe la
+               validación nativa del navegador. Se valida a mano en app.js. -->
+          <input type="hidden" id="latitud" name="latitud">
+          <input type="hidden" id="longitud" name="longitud">
+        </div>
+
+        <!-- Clave de Idempotencia Oculta -->
+        <input type="hidden" id="idempotency_key" name="idempotency_key">
+
+        <!-- Botón de Envío -->
+        <button type="submit" id="btn-submit" class="btn-submit">
+          <span>Registrar Perrito</span> 🐶
+        </button>
+
+        <!-- Mensaje de estado/error amigable -->
+        <div id="alert-box" class="alert-box hidden"></div>
+      </form>
+    </section>
+
+    <!-- ===================== VISTA: MAPA ===================== -->
+    <section id="vista-mapa" class="vista hidden">
+      <div id="mapa-general" class="card-form mapa-grande"></div>
+    </section>
+
+    <!-- ===================== VISTA: LISTA ===================== -->
+    <section id="vista-lista" class="vista hidden">
+      <div id="lista-perritos" class="lista"></div>
+    </section>
+
+    <!-- ===================== VISTA: DETALLE ===================== -->
+    <section id="vista-detalle" class="vista hidden">
+      <button id="btn-volver-lista" class="btn-secondary">&larr; Volver</button>
+      <div id="detalle-contenido" class="card-form"></div>
+    </section>
+
+  </div>
+
+  <!-- JS de Leaflet (Mapa) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- JS Principal -->
+  <script src="app.js"></script>
+</body>
+</html>
