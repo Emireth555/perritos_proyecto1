@@ -34,16 +34,21 @@
     <!-- ===================== VISTA: REGISTRO ===================== -->
     <section id="vista-registro" class="vista">
       <form id="form-perrito" class="card-form">
-
+       
         <!-- 📸 Fotografía (Cámara / Galería) -->
-        <div class="form-group">
-          <label for="foto">Fotografía <span class="required">*</span></label>
-          <input type="file" id="foto" name="foto" accept="image/jpeg,image/png,image/webp" required>
-          <small class="help-text">Puedes tomar una foto directa con la cámara o elegir una de tu galería (JPG, PNG, WEBP).</small>
-          <div id="preview-container" class="preview-container hidden">
-            <img id="foto-preview" src="" alt="Vista previa de la foto">
-          </div>
-        </div>
+<div class="form-group">
+  <label>Fotografía <span class="required">*</span></label>
+  <div class="foto-botones">
+    <button type="button" id="btn-tomar-foto" class="btn-secondary">📷 Tomar foto</button>
+    <button type="button" id="btn-elegir-foto" class="btn-secondary">🖼️ Elegir de la galería</button>
+  </div>
+  <input type="file" id="foto-camara" accept="image/*" capture="environment" hidden>
+  <input type="file" id="foto-galeria" accept="image/jpeg,image/png,image/webp" hidden>
+  <small class="help-text">Puedes tomar una foto directa con la cámara o elegir una de tu galería (JPG, PNG, WEBP).</small>
+  <div id="preview-container" class="preview-container hidden">
+    <img id="foto-preview" src="" alt="Vista previa de la foto">
+  </div>
+</div>
 
         <!-- Nombre -->
         <div class="form-group">
