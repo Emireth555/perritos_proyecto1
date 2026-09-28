@@ -3,7 +3,7 @@
 -- Catálogos: razas y colores (mínimo 10 de cada uno, exige el PDF)
 -- Correr DESPUÉS de 01_schema.sql
 -- ============================================================
-
+SET NAMES utf8mb4;
 USE perritos_db;
 
 -- ------------------------------------------------------------

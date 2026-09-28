@@ -33,7 +33,7 @@ const upload = multer({
         // navegador/cliente y se puede falsificar fácilmente, pero sirve
         // para rechazar de inmediato lo obviamente equivocado sin gastar
         // tiempo de procesamiento. La validación real (autoridad final)
-        // es la de magic bytes en validarContenidoImagen, más abajo.
+        // es la de magic bytes en validarYGuardarImagen, más abajo.
         const tiposPermitidos = ['image/jpeg', 'image/png', 'image/webp'];
         if (!tiposPermitidos.includes(file.mimetype)) {
             return cb(new Error('Formato no permitido. Solo JPG, PNG o WEBP.'));
