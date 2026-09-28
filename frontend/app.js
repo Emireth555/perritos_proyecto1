@@ -3,6 +3,22 @@
 
 const API = '/api';
 
+// Genera la clave de idempotencia (un UUID versión 4) que identifica cada intento de registro.
+// Se usa crypto.randomUUID() cuando existe, pero esa función solo está disponible en
+// https o localhost. Si abrimos la app desde el celular por http://192.168.x.x no existe,
+// así que el "plan B" arma el UUID a mano con crypto.getRandomValues(), que sí funciona en http:
+//   1. genera 16 bytes aleatorios
+//   2. fija los bits de versión (4) y de variante para que sea un UUID válido
+//   3. convierte cada byte a hexadecimal y los une con guiones en formato 8-4-4-4-12
+function generarClave() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  const b = crypto.getRandomValues(new Uint8Array(16));
+  b[6] = (b[6] & 0x0f) | 0x40;
+  b[8] = (b[8] & 0x3f) | 0x80;
+  const h = [...b].map((x) => x.toString(16).padStart(2, '0'));
+  return `${h.slice(0, 4).join('')}-${h.slice(4, 6).join('')}-${h.slice(6, 8).join('')}-${h.slice(8, 10).join('')}-${h.slice(10).join('')}`;
+}
+
 // ---------------------------------------------------------------------------
 // Navegación por pestañas
 // ---------------------------------------------------------------------------
@@ -23,11 +39,11 @@ function mostrarVista(nombre) {
 // ---------------------------------------------------------------------------
 // Idempotencia: una clave por "sesión de formulario", se manda en cada intento
 // ---------------------------------------------------------------------------
-let idempotencyKey = crypto.randomUUID();
+let idempotencyKey = generarClave();
 document.getElementById('idempotency_key').value = idempotencyKey;
 
 function reiniciarClaveIdempotencia() {
-  idempotencyKey = crypto.randomUUID();
+  idempotencyKey = generarClave();
   document.getElementById('idempotency_key').value = idempotencyKey;
 }
 
