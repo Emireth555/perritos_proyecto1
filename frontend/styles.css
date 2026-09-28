@@ -420,3 +420,12 @@ select:focus {
   padding: 30px 0;
 }
 
+.foto-botones {
+  display: flex;
+  gap: 10px;
+}
+
+.foto-botones .btn-secondary {
+  flex: 1;
+  width: auto;
+}

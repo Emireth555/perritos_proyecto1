@@ -76,19 +76,28 @@ async function cargarCatalogos() {
 // ---------------------------------------------------------------------------
 // Foto: preview cuando eligen archivo (cámara o galería, mismo input)
 // ---------------------------------------------------------------------------
-const inputFoto = document.getElementById('foto');
+const inputCamara = document.getElementById('foto-camara');
+const inputGaleria = document.getElementById('foto-galeria');
 const previewContainer = document.getElementById('preview-container');
 const fotoPreview = document.getElementById('foto-preview');
 
-inputFoto.addEventListener('change', () => {
-  const archivo = inputFoto.files[0];
-  if (!archivo) {
-    previewContainer.classList.add('hidden');
-    return;
-  }
+// La foto elegida, venga de la cámara o de la galería.
+let archivoFoto = null;
+
+// Los inputs de archivo están ocultos: cada botón "hace clic" en el suyo.
+document.getElementById('btn-tomar-foto').addEventListener('click', () => inputCamara.click());
+document.getElementById('btn-elegir-foto').addEventListener('click', () => inputGaleria.click());
+
+function alElegirFoto(e) {
+  const archivo = e.target.files[0];
+  if (!archivo) return;
+  archivoFoto = archivo;
   fotoPreview.src = URL.createObjectURL(archivo);
   previewContainer.classList.remove('hidden');
-});
+}
+
+inputCamara.addEventListener('change', alElegirFoto);
+inputGaleria.addEventListener('change', alElegirFoto);
 
 // ---------------------------------------------------------------------------
 // Mapa del formulario: pin arrastrable + botón de "mi ubicación"
@@ -142,7 +151,7 @@ document.getElementById('form-perrito').addEventListener('submit', async (e) => 
   const colorExtra2 = document.getElementById('color_secundario_2_id').value;
   const latitud = document.getElementById('latitud').value;
   const longitud = document.getElementById('longitud').value;
-  const archivo = document.getElementById('foto').files[0];
+  const archivo = archivoFoto;
 
   // --- Validaciones del lado del cliente ---
   if (!archivo) return mostrarAlerta('Falta la foto', 'error');
@@ -186,6 +195,7 @@ document.getElementById('form-perrito').addEventListener('submit', async (e) => 
     mostrarAlerta(`¡${resultado.nombre} fue registrado!`, 'exito');
     document.getElementById('form-perrito').reset();
     previewContainer.classList.add('hidden');
+    archivoFoto = null;
     marcadorFormulario = null;
     reiniciarClaveIdempotencia();
     setTimeout(() => mostrarVista('mapa'), 800);
