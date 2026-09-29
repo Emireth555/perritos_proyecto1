@@ -22,12 +22,12 @@ Aplicación web para registrar perritos de la calle: quien encuentra uno le toma
 ---
 
 ## 1. Integrantes y roles
+      
 
-| Integrante | Usuario de GitHub | Rol |
-|---|---|---|
-| <<COMPLETAR: Estrella Luna Vazquez>> | Memo8aaaa | <<DBA>> |
-| <<COMPLETAR: Johana Emireth Cerda Flores>> | Emireth555 | <<Frontend >> |
-| <<COMPLETAR: Estrella Luna Vazquez y Johana Emireth Cerda Flores>> | <<COMPLETAR: Memo8aaaa y Emireth555>> | <<Backend>> |
+| Integrante                                            | Usuario de GitHub | Rol       |
+| Estrella Luna Vazquez                                 | Memo8aaaa         | DBA       |
+| Johana Emireth Cerda Flores                           | Emireth555        | Frontend  |
+| Estrella Luna Vazquez y Johana Emireth Cerda Flores   | Memo8aaaa y Emireth555 | Backend |
 
 ### Estructura del repositorio
 
@@ -68,47 +68,94 @@ perritos_proyecto1/
 
 Probado en Windows 10/11 con PowerShell.
 
-| Componente | Versión | Cómo verificarla |
-|---|---|---|
-| Git | 2.55.0.windows.5 | `git --version` |
-| Node.js | v24.21.0 | `node --version` |
-| npm | 11.19.0 | `npm --version` |
+| Componente| Versión           | Cómo verificarla |
+| Git       | 2.55.0.windows.5  | `git --version` |
+| Node.js   | v24.21.0          | `node --version` |
+| npm       | 11.19.0           | `npm --version` |
 | MySQL Server (Community) | 8.0.46 (mínimo 8.0.16, por el `CHECK` del esquema) | `mysql --version` |
 | Navegador | Microsoft Edge o Google Chrome actualizados | |
 
 Dependencias del backend (se instalan solas con `npm install`; sus versiones quedan en `backend/package.json`):
 
 | Paquete | Versión |
-|---|---|
 | express | 4.22.3 |
-| cors | 2.8.6 |
-| dotenv | 16.6.1 |
-| mysql2 | 3.24.4 |
-| multer | 2.4.0 |
+| cors    | 2.8.6 |
+| dotenv  | 16.6.1 |
+| mysql2  | 3.24.4 |
+| multer  | 2.4.0 |
 
 Librería del frontend: Leaflet 1.9.4 (se carga desde internet, hace falta conexión).
 
 ---
 
 ## 3. Instalación
+Antes de instalar nada, revisa qué ya tienes con estos tres comandos en PowerShell (dentro del proyecto o en cualquier carpeta, da igual):
 
-Todos los comandos son para **PowerShell**. No se usa Docker.
+**PowerShell**
+git --version
+node --version
+mysql --version  
+Para comprobar mysql, busca si el programa existe en el disco:
+
+dir "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe"
+
+Si el programa está instalado, verás algo como:
+
+git version 2.45.1.windows.1
+v20.14.0
+mysql  Ver 8.0.37 for Win64
+
+Si NO está instalado, PowerShell responde con un error parecido a:
+
+git : El término 'git' no se reconoce como nombre de un cmdlet...
 
 **3.1 Instala los programas** (si no los tienes):
 
 - Git: https://git-scm.com/download/win
+  1. La descarga del archivo ejecutable (ej. Git-2.x.x-64-bit.exe) comenzará automáticamente.
+  2. Ejecuta el archivo descargado para iniciar el asistente.
+  3. Haz clic en *Next* en todas las pantallas manteniendo las opciones predeterminadas que vienen seleccionadas por defecto.
+  4. Haz clic en *Install* y al finalizar en *Finish*.
 - Node.js (versión LTS): https://nodejs.org
-- MySQL Server: https://dev.mysql.com/downloads/installer/ (elige *Server only*, deja el puerto `3306`, define una contraseña para `root` y anótala; deja marcado que inicie con Windows).
+  1. En la página principal, haz clic en el botón verde que dice *22.x.x LTS* (o la versión recomendada que diga *LTS*).
+  2. Abre el archivo descargado (.msi) para iniciar el instalador.
+  3. Haz clic en *Next* en todas las pantallas dejando las opciones por defecto (asegúrate de que mantenga seleccionada la casilla "Add to PATH").
+  4. Si aparece la opción "Tools for Native Modules" (para instalar herramientas adicionales de C++ o Python), *no es necesario marcarla*.
+  5. Haz clic en *Install* y luego en *Finish*.
+- MySQL Server: https://dev.mysql.com/downloads/installer/ 
+    1. Descargar la opcion mysql.installer-community-8.0.46.0.msi *NO LA WEB*
+    2. En la siguiente pantalla dar click en "No, gracias...." para no iniciar sesion(no necesario)
+    (elige *Server only*, deja el puerto `3306`, define una contraseña para `root` y anótala; deja marcado que inicie con Windows).
+    3. Al abrir el .msi, sigue estos pasos y detállalos así en tu README:(permirir los cambios SI)
 
-Cierra y vuelve a abrir PowerShell, y comprueba:
+    4. Choosing a Setup Type: elige Server only (no "Full" ni "Developer Default"). Siguiente.
+    5. Installation: el instalador lista lo que va a instalar (MySQL Server). Botón Execute, espera a que termine, Next.
+    6. Product Configuration: aquí también Next hasta llegar a la configuración del servidor.
+    7. Type and Networking:
+    8. Config Type: Development Computer.
+    9. Puerto: deja 3306. SI  sale un icono de error probablemente el puerto esta siendo ocupado, liberar el puerto o lo mas viable poner el puerto 3307 y mas adelante en el backend cambiar el puerto que viene en el archivo .env linea: DB_PORT=3306 Por DB_PORT=3307
+    10. Marca "Open Windows Firewall port for network access". Next.
+    11. Authentication Method: deja marcada la opción recomendada (Use Strong Password Encryption). Next.
+    12. Accounts and Roles: aquí defines la contraseña de root. Escribe una y anótala la usaras mas adelante. Este es el dato que tu backend necesita en DB_PASSWORD. Next.
+    13. Windows Service: deja marcado "Start the MySQL Server at System Startup" (para que inicie solo con Windows, como ya decía tu README) y el nombre por defecto MySQL80. Next.
+    14. Server File Permissions, dejar marcado #yes, grant full...." y dar next
+    13. Apply Configuration: botón Execute, espera, next, Finish.
+    14. Cierra el instalador.
+    16. Cierra y vuelve a abrir PowerShell, y comprueba mysql --version
+    *PASO OBLIGATORIO*, agregar mysql al PATH:
+
+Menú inicio → escribe "variables de entorno" → abre "Editar las variables de entorno del sistema".
+Botón Variables de entorno...
+En "Variables del sistema", selecciona Path → Editar.
+Nuevo → pega: C:\Program Files\MySQL\MySQL Server 8.0\bin
+Aceptar en todas las ventanas.
+Cierra y vuelve a abrir la terminal.
 
 ```powershell
 git --version
 node --version
 mysql --version
 ```
-
-Si `mysql` no se reconoce, ver [Problemas comunes](#10-problemas-comunes).
 
 **3.2 Clona el repositorio:**
 
@@ -136,12 +183,22 @@ Motor: **MySQL 8.0**. Base: `perritos_db`. Codificación: `utf8mb4` (para que lo
 ### 4.1 Crear la base, los catálogos y los datos de prueba
 
 Corre los tres comandos **en este orden**; cada uno pide la contraseña de `root`:
-
+si el puerto esta en 3306 hacer:
 ```powershell
 mysql -u root -p --default-character-set=utf8mb4 -e "source database/schema.sql"
+te pedira la contraseña que creaste en la instalacion de mysql server
 mysql -u root -p --default-character-set=utf8mb4 -e "source database/catalogos.sql"
+te pedira la contraseña que creaste en la instalacion de mysql server
 mysql -u root -p --default-character-set=utf8mb4 -e "source database/datos_prueba.sql"
+te pedira la contraseña que creaste en la instalacion de mysql server
 ```
+si el puerto fue reemplazado por 3307 hacer:
+mysql -u root -p -P 3307 --default-character-set=utf8mb4 -e "source ./database/schema.sql"
+te pedira la contraseña que creaste en la instalacion de mysql server
+mysql -u root -p -P 3307 --default-character-set=utf8mb4 -e "source ./database/catalogos.sql"
+te pedira la contraseña que creaste en la instalacion de mysql server
+mysql -u root -p -P 3307 --default-character-set=utf8mb4 -e "source ./database/datos_prueba.sql"
+te pedira la contraseña que creaste en la instalacion de mysql server
 
 - `schema.sql` crea la base y las 4 tablas. **Borra y recrea las tablas** si ya existían, así que volver a correrlo elimina los perritos registrados; hay que recargar catálogos y datos de prueba después.
 - `catalogos.sql` carga 12 razas (incluye *Sin raza definida / criollo*) y 12 colores.
@@ -151,32 +208,49 @@ mysql -u root -p --default-character-set=utf8mb4 -e "source database/datos_prueb
 
 El backend **no usa `root`**: usa un usuario propio que solo puede leer y escribir en `perritos_db`.
 
-1. Abre `database/usuario_app.sql` con el Bloc de notas o VS Code.
-2. Sustituye el texto `CAMBIA_ESTA_CONTRASENA` (todas las veces que aparezca) por una contraseña tuya. Usa letras, números y guion bajo; evita `$`, `` ` ``, `"` y `%`. **Anótala**: irá en el `.env`.
+1. Abre `database/usuario_app.sql` con el Bloc de notas .
+    notepad database/usuario_app.sql
+2. Sustituye en la linea IDENTIFIED BY.. el texto `CAMBIA_ESTA_CONTRASENA` (todas las veces que aparezca) por una contraseña tuya. Usa letras, números y guion bajo; evita `$`, `` ` ``, `"` y `%`. **Anótala**: irá en el `.env`.
 3. Corre:
 
+en caso de usar puerto 3306
 ```powershell
 mysql -u root -p -e "source database/usuario_app.sql"
 ```
+en cso de usar puerto 3307
+```powershell
+mysql -u root -p -P 3307 -e "source database/usuario_app.sql"
+```
 
 ### 4.3 Verificar
-
+en caso de usar puerto 3306
 ```powershell
 mysql -u root -p -e "SELECT COUNT(*) AS razas FROM perritos_db.razas; SELECT COUNT(*) AS colores FROM perritos_db.colores; SELECT COUNT(*) AS perritos FROM perritos_db.perritos;"
 mysql -u perritos_app -p -e "SHOW GRANTS;"
 ```
+en caso de usar puerto 3307
+```powershell
+mysql -u root -p -P 3307 -e "SELECT COUNT(*) AS razas FROM perritos_db.razas; SELECT COUNT(*) AS colores FROM perritos_db.colores; SELECT COUNT(*) AS perritos FROM perritos_db.perritos;"
+mysql -u perritos_app -p -P 3307 -e "SHOW GRANTS;"
+si sale este error : ERROR 1045 (28000): Access denied for user 'perritos_app'@'localhost' (using password: YES)
+corre lo siguiente para arreglarlo:
+mysql -u root -p -P 3307 -e "ALTER USER 'perritos_app'@'localhost' IDENTIFIED BY 'perritos1'; FLUSH PRIVILEGES;"
+mysql -u perritos_app -p -P 3307 -e "SHOW GRANTS;"
+te pedira una contraseña, la contraseña sera perritos1
+```
 
 Debe mostrar 12 razas, 12 colores y 15 perritos, y en la segunda (con la contraseña del paso 4.2) un `GRANT SELECT, INSERT, UPDATE, DELETE ON perritos_db.*`.
 
+
 ### 4.4 Fotos de prueba
 
-La base guarda solo el **nombre** de cada foto (`foto_archivo`). Las imágenes viven en una carpeta **fuera del repositorio** (variable `RUTA_IMAGENES`, sección 5). Las 15 fotos de prueba (livianas, menos de 130 KB cada una) están en `database/imagenes_prueba/`; hay que copiarlas a esa carpeta:
+La base guarda solo el **nombre** de cada foto (`foto_archivo`). Las imágenes viven en una carpeta **fuera del repositorio** (variable `RUTA_IMAGENES`, sección 5). Las 15 fotos de prueba (livianas, menos de 130 KB cada una) están en `database/imagenes_prueba/`; hay que copiarlas a esa carpeta con los siguientes comandos:
 
 ```powershell
 New-Item -ItemType Directory -Force $HOME\perritos-imagenes
 Copy-Item database\imagenes_prueba\*.jpg $HOME\perritos-imagenes\ -Force
 ```
-
+### del 4.5 al 4-8 es informacion explicativa no ejecutar
 ### 4.5 Diagrama entidad-relación
 
 ```mermaid
@@ -266,30 +340,55 @@ Guarda los respaldos **fuera del repositorio**. El respaldo de la base no incluy
 
 ## 5. Configuración
 
-El backend lee su configuración de `backend/.env`, que **no se sube a Git** (contiene contraseñas). Se crea a partir del ejemplo:
+El backend lee su configuración del archivo `backend/.env`. Ese archivo **no se sube a Git** porque contiene contraseñas, así que cada persona lo crea en su máquina a partir de `backend/.env.example`.
+
+### 5.1 Crear el archivo
+
+Desde la carpeta raíz del proyecto, corre:
 
 ```powershell
 Copy-Item backend\.env.example backend\.env
 notepad backend\.env
 ```
 
-| Variable | Qué es | Ejemplo |
-|---|---|---|
-| `PORT` | Puerto donde corre el servidor | `3000` |
-| `DB_HOST` | Servidor de MySQL | `localhost` |
-| `DB_PORT` | Puerto de MySQL | `3306` |
-| `DB_USER` | Usuario de MySQL (el del paso 4.2) | `perritos_app` |
-| `DB_PASSWORD` | Contraseña de ese usuario | `la_que_elegiste` |
-| `DB_NAME` | Nombre de la base | `perritos_db` |
-| `RUTA_IMAGENES` | Carpeta **fuera del proyecto** donde se guardan las fotos | `C:/Users/TU_USUARIO/perritos-imagenes` |
+Se abre el Bloc de notas con el archivo. **Aquí tienes que editarlo**: cambia los valores para que coincidan con tu instalación. Guarda con `Ctrl + G` y cierra.
 
-Para `RUTA_IMAGENES` usa barras `/` (no `\`). Este comando imprime la ruta ya lista para pegar:
+
+### 5.2 Qué debe decir cada línea
+
+| Variable | Qué es | Qué poner |
+|---|---|---|
+| `PORT` | Puerto del servidor de la aplicación | `3000` (no lo cambies) |
+| `DB_HOST` | Dónde está MySQL | `localhost` |
+| `DB_PORT` | Puerto de MySQL | `3306`, o `3307` si en la instalación cambiaste el puerto |
+| `DB_USER` | Usuario de MySQL | `perritos_app` |
+| `DB_PASSWORD` | Contraseña de ese usuario | La del paso 4.2 |
+| `DB_NAME` | Nombre de la base | `perritos_db` |
+| `RUTA_IMAGENES` | Carpeta donde están las fotos (paso 4.4) | `C:/Users/TU_USUARIO/perritos-imagenes` |
+
+Cambia `TU_USUARIO` por el nombre de tu carpeta en `C:\Users\`. Usa barras `/`, no `\`.
+
+Para no equivocarte con la ruta, este comando la imprime lista para copiar:
 
 ```powershell
 ($HOME -replace '\\','/') + '/perritos-imagenes'
 ```
 
-Si la carpeta no existe, el backend la crea al arrancar. Sin la variable `RUTA_IMAGENES` el servidor no arranca.
+### 5.3 Ejemplo de `.env` terminado
+
+```
+PORT=3000
+DB_HOST=localhost
+DB_PORT=3306
+DB_USER=perritos_app
+DB_PASSWORD=la_contraseña_del_paso_4.2
+DB_NAME=perritos_db
+RUTA_IMAGENES=C:/Users/Usuario/perritos-imagenes
+```
+
+Si tu MySQL quedó en el puerto 3307, cambia solo `DB_PORT=3307`.
+
+Si la carpeta de imágenes no existe, el backend la crea al arrancar. Sin la variable `RUTA_IMAGENES` el servidor no arranca.
 
 ---
 
@@ -301,7 +400,7 @@ El servidor de Express sirve la API **y** el frontend, así que hay un solo proc
 cd backend
 node server.js
 ```
-
+dar en permitir en la ventana que sale
 Debe imprimir `Servidor corriendo en http://localhost:3000`.
 
 | Parte | URL |
@@ -309,8 +408,8 @@ Debe imprimir `Servidor corriendo en http://localhost:3000`.
 | Frontend (la aplicación) | http://localhost:3000 |
 | Backend (API) | http://localhost:3000/api |
 
-Para detenerlo: `Ctrl + C`. Hay que correr `node server.js` **desde la carpeta `backend/`**, porque ahí se busca el archivo `.env`.
-
+ Hay que correr `node server.js` **desde la carpeta `backend/`**, porque ahí se busca el archivo `.env`.
+Para detenerlo: `Ctrl + C`.
 ---
 
 ## 7. Probar desde un celular
@@ -319,28 +418,25 @@ La aplicación se usa desde el celular, y el navegador solo da acceso a la **ubi
 
 ### 7.1 En la misma red Wi-Fi (sin HTTPS)
 
-1. Con el servidor corriendo, obtén la IP de la laptop: `ipconfig` y copia la *Dirección IPv4* del adaptador Wi-Fi (por ejemplo `192.168.1.50`).
+1. Con el servidor corriendo, abre otra ventana de powershell y obtén la IP de la laptop: `ipconfig` y copia la *Dirección IPv4* del adaptador Wi-Fi (por ejemplo `192.168.1.50`).
 2. Conecta el celular **a la misma red Wi-Fi**.
 3. En el navegador del celular abre `http://TU_IP:3000`.
 4. Si Windows pregunta por el firewall, permite el acceso en **redes privadas**.
 
 Por http la carga de la lista y el mapa, elegir una foto y mover el pin a mano funcionan; el botón de ubicación actual puede fallar. Algunas redes (escuelas, cafés) aíslan a los dispositivos entre sí: si no carga, usa el hotspot del celular (conecta la laptop a él y repite desde el paso 1).
 
-### 7.2 Con HTTPS (cámara y ubicación completas)
+### 7.2 Con HTTPS (cámara y ubicación completas) Un túnel de Cloudflare da una dirección https pública, sin cuenta y sin configurar nada:Instalar el cliente de Cloudflare (solo la primera vez):
 
-Un túnel de Cloudflare da una dirección `https` pública, sin cuenta y sin configurar nada:
+1. Abre una ventana de PowerShell y ejecuta: winget install --id Cloudflare.cloudflared
+2. Cierra esta ventana de PowerShell para que se apliquen los cambios en el sistema.  
+3. Iniciar el servidor backend (Ventana 1):
+4. Abre PowerShell (puedes usar la ventana donde hiciste la instalación previa), navega a la carpeta del backend e inicia el servidor:  cd backend
+              node server.js
+Deja esta ventana abierta y corriendo.   
+5. Lanzar el túnel HTTPS (Ventana 2):
+Abre una segunda ventana de PowerShell totalmente nueva y ejecuta:  cloudflared tunnel --url http://localhost:3000
 
-```powershell
-winget install --id Cloudflare.cloudflared
-```
-
-Cierra y abre PowerShell. Con el servidor corriendo en otra ventana:
-
-```powershell
-cloudflared tunnel --url http://localhost:3000
-```
-
-Imprime una dirección `https://algo.trycloudflare.com`; ábrela en el celular (funciona incluso con datos móviles). La dirección **cambia cada vez** y deja de funcionar al cerrar esa ventana. Mientras el túnel está abierto, la aplicación es accesible públicamente; ciérralo con `Ctrl + C` al terminar. La base de datos nunca se expone: solo el puerto 3000 pasa por el túnel.
+El comando imprimirá una dirección [https://algo.trycloudflare.com](https://algo.trycloudflare.com); ábrela en el celular (funciona tanto en la red Wi-Fi como con datos móviles). La dirección cambia cada vez y deja de funcionar al cerrar esa ventana. Mientras el túnel está abierto, la aplicación es accesible públicamente; ciérralo con Ctrl + C al terminar. La base de datos nunca se expone: solo el puerto 3000 pasa por el túnel.
 
 ---
 
@@ -434,21 +530,42 @@ Prueba del doble envío:
 
 ## 10. Problemas comunes
 
+### Instalación y base de datos
+
 | Problema | Causa | Solución |
 |---|---|---|
 | `'mysql' no se reconoce como un comando` | MySQL no está en el `PATH` | Agrega `C:\Program Files\MySQL\MySQL Server 8.0\bin` a la variable `Path` (Variables de entorno de Windows) y abre PowerShell de nuevo |
-| El servidor dice `Falta configurar RUTA_IMAGENES en el .env` | No existe `backend/.env`, o se corrió `node server.js` fuera de `backend/` | Crea el `.env` (sección 5) y corre el servidor desde `backend/` |
-| `Access denied for user 'perritos_app'` | La contraseña del `.env` no es la del paso 4.2 | Comprueba con `mysql -u perritos_app -p -e "SHOW GRANTS;"`. Si falla, con `root`: `ALTER USER 'perritos_app'@'localhost' IDENTIFIED BY 'nueva';` y pon la misma en el `.env` |
+| El instalador de MySQL marca error en el puerto 3306 | Otro MySQL en la misma computadora ya usa ese puerto | Usa el puerto `3307` en el instalador y en todos los comandos agrega `-P 3307`. En el `.env` pon `DB_PORT=3307` |
+| `Stop-Service : No se puede abrir el servicio MySQL80 en el equipo '.'` | PowerShell no tiene permisos de administrador | Abre PowerShell con clic derecho → *Ejecutar como administrador* y repite el comando |
+| `ERROR 2059 (HY000): Authentication plugin 'auth_gssapi_client' cannot be loaded` | Escribiste `-p 3307` (minúscula) en lugar de `-P 3307` (mayúscula). Con `-p` minúscula, MySQL toma "3307" como nombre de base de datos y se conecta al puerto 3306, donde hay **otro** servidor MySQL | Usa `-P` mayúscula para el puerto y `-p` minúscula para la contraseña: `mysql -u root -p -P 3307 ...` |
+| `ERROR 1045 (28000): Access denied for user 'root'@'localhost'` | Contraseña de `root` incorrecta, o falta `-P 3307` y te conectas a otro servidor MySQL | Revisa que uses `-P 3307` si tu MySQL quedó en ese puerto y que escribas la contraseña de `root` que definiste en el instalador |
+| `Access denied for user 'perritos_app'` | El usuario ya existía con otra contraseña: `CREATE USER IF NOT EXISTS` no la cambia si el usuario ya existe. También ocurre si la contraseña del `.env` no coincide | Con `root`: `mysql -u root -p -P 3307 -e "ALTER USER 'perritos_app'@'localhost' IDENTIFIED BY 'perritos1'; FLUSH PRIVILEGES;"` y pon la misma contraseña en el `.env`. Comprueba con `mysql -u perritos_app -p -P 3307 -e "SHOW GRANTS;"` (en puerto 3306 quita `-P 3307`) |
 | Al escribir la contraseña no se ve nada | Es normal en la terminal | Escríbela igual y presiona Enter |
 | El operador `<` da error en PowerShell | PowerShell no lo admite | Usa los comandos con `-e "source archivo.sql"` de esta guía |
 | Los acentos salen mal (`SimÃ³n`) | Se cargó sin `utf8mb4` | Vuelve a correr los tres scripts con `--default-character-set=utf8mb4` (paso 4.1) |
-| Las fotos de la lista no se ven | Las fotos de prueba no están en `RUTA_IMAGENES` o la ruta está mal | Repite el paso 4.4 y revisa la ruta del `.env` |
 | Error 1419 al crear el trigger | Se corrió `schema.sql` con un usuario que no es `root` | Córrelo con `root` |
-| `EADDRINUSE` al arrancar | El puerto 3000 ya está en uso | Cierra el otro servidor o cambia `PORT` en el `.env` |
-| El celular no carga la página | Otra red, firewall o red que aísla dispositivos | Misma red Wi-Fi, permitir redes privadas en el firewall, o usar el hotspot del celular (sección 7.1) |
-| En el celular falla la ubicación o la cámara | El navegador las bloquea sin `https` | Usa el túnel HTTPS (sección 7.2) |
 | `mysql: [Warning] Using a password on the command line` | Aviso al poner la contraseña en el comando | Es informativo, no es un error |
 
+### Configuración y servidor
+
+| Problema | Causa | Solución |
+|---|---|---|
+| El servidor dice `Falta configurar RUTA_IMAGENES en el .env` | No existe `backend/.env`, o se corrió `node server.js` fuera de `backend/` | Crea el `.env` (sección 5) y corre el servidor desde `backend/` |
+| El servidor no conecta a la base (`Access denied` o `ECONNREFUSED`) | `DB_PORT`, `DB_USER` o `DB_PASSWORD` del `.env` no coinciden con tu instalación | Abre `notepad backend\.env` y revisa que el puerto sea el mismo que usaste en los comandos de MySQL (3306 o 3307) |
+| Perdí mi `.env` con los valores que había escrito | Se corrió `Copy-Item backend\.env.example backend\.env` otra vez, que **sobrescribe** el archivo | Corre `Copy-Item` una sola vez. Si ya existe el `.env`, solo edítalo con `notepad backend\.env` |
+| `Copy-Item` de las fotos dice que no encuentra `database\imagenes_prueba\*.jpg` | Se corrió desde otra carpeta; la ruta es relativa | Colócate en la raíz del proyecto (`cd C:\Users\TU_USUARIO\perritos_proyecto1`) y repite el paso 4.4 |
+| Las fotos de la lista no se ven | Las fotos de prueba no están en `RUTA_IMAGENES` o la ruta está mal | Repite el paso 4.4 y revisa la ruta del `.env` (con barras `/`). Comprueba que haya 15 archivos: `Get-ChildItem $HOME\perritos-imagenes \| Measure-Object` |
+| `EADDRINUSE` al arrancar | El puerto 3000 ya está en uso | Cierra el otro servidor o cambia `PORT` en el `.env` |
+
+### Celular y túnel HTTPS
+
+| Problema | Causa | Solución |
+|---|---|---|
+| La página queda en blanco en el celular al abrir `https://10.x.x.x:3000` | Se escribió `https://` con la IP de la red local; el servidor solo habla `http` | Usa `http://TU_IP:3000`. El `https` solo se usa con la dirección del túnel de Cloudflare |
+| El celular no carga la página con `http://TU_IP:3000` | Otra red, firewall o red que aísla dispositivos | Misma red Wi-Fi que la laptop. Si Windows bloquea el acceso, abre PowerShell como administrador y corre `New-NetFirewallRule -DisplayName "Perritos 3000" -Direction Inbound -Protocol TCP -LocalPort 3000 -Action Allow`. Si es una red de escuela o café, usa el hotspot del celular (sección 7.1) |
+| En el celular falla la ubicación o la cámara | El navegador las bloquea sin `https` | Usa el túnel HTTPS (sección 7.2) |
+| `cloudflared : El término 'cloudflared' no se reconoce` | La ventana de PowerShell se abrió antes de instalarlo y no conoce el comando nuevo | Cierra **toda** la ventana de PowerShell, abre una nueva y prueba `cloudflared --version`. Si sigue igual, busca el ejecutable con `Get-ChildItem "$env:LOCALAPPDATA\Microsoft\WinGet\Packages" -Recurse -Filter cloudflared.exe` y córrelo con su ruta completa |
+| `winget install` dice "Se encontró un paquete existente ya instalado" | cloudflared ya estaba instalado | No hay que reinstalar: cierra y abre PowerShell y sigue con el paso del túnel |
 ---
 
 ## 11. Paradigmas e idempotencia
