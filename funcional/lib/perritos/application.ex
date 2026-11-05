@@ -5,6 +5,12 @@ defmodule Perritos.Application do
 
   def start(_tipo, _args) do
     hijos = [
+      {MyXQL,
+        name: :db,
+        hostname: System.fetch_env!("BD_HOST"),
+        username: System.fetch_env!("BD_USUARIO"),
+        password: System.fetch_env!("BD_PASSWORD"),
+        database: System.fetch_env!("BD_NOMBRE")},
       {Bandit, plug: Perritos.Router, ip: :any, port: 4000}
     ]
 
