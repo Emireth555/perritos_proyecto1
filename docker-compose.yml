@@ -1,0 +1,82 @@
+services:
+  herramientas:
+    image: elixir:1.18-alpine
+    profiles: ["herramientas"]
+    working_dir: /app
+    volumes:
+      - ./funcional:/app
+      - mix_cache:/root/.mix
+      - hex_cache:/root/.hex
+
+  bd:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${BD_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${BD_NOMBRE}
+      MYSQL_USER: ${BD_USUARIO}
+      MYSQL_PASSWORD: ${BD_PASSWORD}
+      TZ: America/Monterrey
+    volumes:
+      - bd_datos:/var/lib/mysql
+      # Se ejecutan en orden alfabético, solo cuando el volumen está vacío
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./database/catalogos.sql:/docker-entrypoint-initdb.d/02_catalogos.sql:ro
+      - ./database/datos_prueba.sql:/docker-entrypoint-initdb.d/03_datos_prueba.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  backend:
+    build: ./backend
+    environment:
+      PORT: 3000
+      DB_HOST: bd
+      DB_PORT: 3306
+      DB_USER: ${BD_USUARIO}
+      DB_PASSWORD: ${BD_PASSWORD}
+      DB_NAME: ${BD_NOMBRE}
+      RUTA_IMAGENES: /imagenes
+    volumes:
+      - imagenes:/imagenes
+    depends_on:
+      bd:
+        condition: service_healthy
+
+  frontend:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+
+  funcional:
+    build: ./funcional
+    environment:
+      BD_HOST: bd
+      BD_USUARIO: ${BD_USUARIO}
+      BD_PASSWORD: ${BD_PASSWORD}
+      BD_NOMBRE: ${BD_NOMBRE}
+      TZ: America/Monterrey
+    depends_on:
+      bd:
+        condition: service_healthy
+
+  proxy:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./proxy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "8081:80"   # local: http://localhost:8081
+    depends_on: [frontend, backend, funcional]
+
+  tunel:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate --url http://proxy:80
+    depends_on: [proxy]
+
+volumes:
+  mix_cache:
+  hex_cache:
+  bd_datos:
+  imagenes:
