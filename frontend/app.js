@@ -2,6 +2,7 @@
 // Los IDs usados aquí coinciden exactamente con los del HTML del formulario.
 
 const API = '/api';
+const API_F = '/f'; // servicio funcional (Elixir) (#13)
 
 // Genera la clave de idempotencia (un UUID versión 4) que identifica cada intento de registro.
 // Se usa crypto.randomUUID() cuando existe, pero esa función solo está disponible en
@@ -29,6 +30,8 @@ document.querySelectorAll('.tab').forEach((btn) => {
 function mostrarVista(nombre) {
   document.querySelectorAll('.vista').forEach((v) => v.classList.add('hidden'));
   document.getElementById(`vista-${nombre}`).classList.remove('hidden');
+  // (#13) el panel de filtros solo se ve en Mapa y Lista
+  document.getElementById('form-filtros').classList.toggle('hidden', !['mapa', 'lista'].includes(nombre));
   document.querySelectorAll('.tab').forEach((b) => b.classList.remove('activo'));
   document.querySelector(`.tab[data-vista="${nombre}"]`)?.classList.add('activo');
 
@@ -71,6 +74,13 @@ async function cargarCatalogos() {
 
   document.getElementById('color_secundario_2_id').innerHTML =
     '<option value="">Ninguno</option>' + opcionesColor;
+
+  // (#13) Selects del panel de filtros: el valor es el NOMBRE, porque /f/busqueda filtra por nombre
+  const aOpcion = (x) => `<option value="${x.nombre}">${x.nombre}</option>`;
+  document.getElementById('f-raza').innerHTML =
+    '<option value="">Cualquiera</option>' + razas.map(aOpcion).join('');
+  document.getElementById('f-color').innerHTML =
+    '<option value="">Cualquiera</option>' + colores.map(aOpcion).join('');
 }
 
 // ---------------------------------------------------------------------------
@@ -219,9 +229,104 @@ function ocultarAlerta() {
 }
 
 // ---------------------------------------------------------------------------
+// Filtros de búsqueda combinada (#13)
+// ---------------------------------------------------------------------------
+let resultadosFiltrados = null; // null = sin búsqueda activa
+
+// Traduce el JSON de /f/busqueda a los nombres que ya usa el frontend
+function adaptar(a) {
+  return {
+    id: a.id,
+    nombre: a.nombre,
+    raza: a.raza,
+    color_principal: a.colores[0],
+    latitud: a.lat,
+    longitud: a.lon,
+    foto_archivo: a.foto,
+    fecha_registro: a.fecha,
+  };
+}
+
+const CAMPOS_FILTRO = {
+  raza: 'f-raza',
+  color: 'f-color',
+  desde: 'f-desde',
+  hasta: 'f-hasta',
+  lat: 'f-lat',
+  lon: 'f-lon',
+  metros: 'f-metros',
+};
+
+function armarQuery() {
+  const params = new URLSearchParams();
+  Object.entries(CAMPOS_FILTRO).forEach(([nombre, id]) => {
+    const valor = document.getElementById(id).value.trim();
+    if (valor) params.set(nombre, valor);
+  });
+  return params.toString();
+}
+
+function mensajeFiltros(texto) {
+  document.getElementById('filtros-msg').textContent = texto;
+}
+
+function refrescarVistaActual() {
+  const actual = document.querySelector('.tab.activo').dataset.vista;
+  if (actual === 'lista') cargarLista();
+  if (actual === 'mapa') cargarMapaGeneral();
+}
+
+// Devuelve los resultados filtrados si hay búsqueda activa; si no, todos (API del P1)
+async function obtenerPerritos() {
+  if (resultadosFiltrados) return resultadosFiltrados;
+  const resp = await fetch(`${API}/perritos`);
+  return resp.ok ? resp.json() : [];
+}
+
+document.getElementById('form-filtros').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  // El radio necesita los tres campos juntos
+  const radio = ['f-lat', 'f-lon', 'f-metros'].map((id) => document.getElementById(id).value.trim());
+  const llenos = radio.filter((v) => v !== '').length;
+  if (llenos > 0 && llenos < 3) {
+    return mensajeFiltros('Para buscar por radio llena latitud, longitud y metros.');
+  }
+
+  try {
+    const resp = await fetch(`${API_F}/busqueda?${armarQuery()}`);
+    const cuerpo = await resp.json();
+    if (!resp.ok) return mensajeFiltros(cuerpo.error || 'No se pudo buscar.');
+
+    resultadosFiltrados = cuerpo.map(adaptar);
+    mensajeFiltros(`${resultadosFiltrados.length} resultado(s).`);
+    refrescarVistaActual();
+  } catch (err) {
+    mensajeFiltros('Error de conexión con el servicio de búsqueda.');
+  }
+});
+
+document.getElementById('btn-filtro-limpiar').addEventListener('click', () => {
+  document.getElementById('form-filtros').reset();
+  resultadosFiltrados = null;
+  mensajeFiltros('');
+  refrescarVistaActual();
+});
+
+document.getElementById('btn-filtro-gps').addEventListener('click', () => {
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      document.getElementById('f-lat').value = pos.coords.latitude;
+      document.getElementById('f-lon').value = pos.coords.longitude;
+    },
+    () => mensajeFiltros('No se pudo obtener tu ubicación. Escribe las coordenadas.')
+  );
+});
+
+// ---------------------------------------------------------------------------
 // Mapa general (pestaña "Mapa")
 // ---------------------------------------------------------------------------
-let mapaGeneral;
+let mapaGeneral, capaMarcadores;
 
 async function cargarMapaGeneral() {
   // El mapa se crea SIEMPRE, aunque no haya backend/datos todavía.
@@ -230,6 +335,7 @@ async function cargarMapaGeneral() {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap',
     }).addTo(mapaGeneral);
+    capaMarcadores = L.layerGroup().addTo(mapaGeneral); // (#13) capa que se puede limpiar
   }
 
   // Leaflet se crea mientras la pestaña todavía está oculta (display:none),
@@ -240,15 +346,14 @@ async function cargarMapaGeneral() {
   // Los marcadores son "extra": si falla (BD aún no existe), el mapa se
   // sigue viendo vacío en vez de romperse.
   try {
-    const resp = await fetch(`${API}/perritos`);
-    if (!resp.ok) return; // backend respondió con error, no hay datos aún
-    const perritos = await resp.json();
+    const perritos = await obtenerPerritos();
+    capaMarcadores.clearLayers(); // (#13) evita marcadores duplicados al filtrar
 
     perritos
       .filter((p) => p.latitud && p.longitud)
       .forEach((p) => {
         L.marker([p.latitud, p.longitud])
-          .addTo(mapaGeneral)
+          .addTo(capaMarcadores)
           .bindPopup(
             `<b>${p.nombre}</b><br/>${p.color_principal}<br/><img src="${API}/imagenes/${p.foto_archivo}" width="100"/>`
           );
@@ -267,14 +372,16 @@ async function cargarLista() {
 
   let perritos = [];
   try {
-    const resp = await fetch(`${API}/perritos`);
-    if (resp.ok) perritos = await resp.json();
+    perritos = await obtenerPerritos();
   } catch (err) {
     console.log('Aún no hay conexión con el backend para cargar la lista.');
   }
 
   if (perritos.length === 0) {
-    contenedor.innerHTML = `<p class="ayuda">Todavía no hay perritos registrados.</p>`;
+    const texto = resultadosFiltrados
+      ? 'Ningún perrito coincide con los filtros.'
+      : 'Todavía no hay perritos registrados.';
+    contenedor.innerHTML = `<p class="ayuda">${texto}</p>`;
     return;
   }
 
@@ -307,6 +414,7 @@ async function verDetalle(id) {
     <p><b>Registrado:</b> ${new Date(p.fecha_registro).toLocaleString()}</p>
   `;
   document.querySelectorAll('.vista').forEach((v) => v.classList.add('hidden'));
+  document.getElementById('form-filtros').classList.add('hidden'); // (#13)
   document.getElementById('vista-detalle').classList.remove('hidden');
 }
 
