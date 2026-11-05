@@ -22,6 +22,7 @@ services:
       - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
       - ./database/catalogos.sql:/docker-entrypoint-initdb.d/02_catalogos.sql:ro
       - ./database/datos_prueba.sql:/docker-entrypoint-initdb.d/03_datos_prueba.sql:ro
+      - ./database/04_avistamientos_masivos.sql:/docker-entrypoint-initdb.d/04_avistamientos_masivos.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 5s
