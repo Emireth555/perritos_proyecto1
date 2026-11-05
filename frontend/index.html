@@ -10,6 +10,7 @@
 
   <!-- Estilos propios -->
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="ruta.css">
 
   <!-- Fuente Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -120,8 +121,25 @@
 
     <!-- ===================== VISTA: MAPA ===================== -->
     <section id="vista-mapa" class="vista hidden">
-      <div id="mapa-general" class="card-form mapa-grande"></div>
-    </section>
+  <div id="panel-ruta" class="card-form panel-ruta">
+    <strong>🚑 Ruta de rescate</strong>
+    <label for="ruta-radio">Perritos a menos de:</label>
+    <select id="ruta-radio">
+      <option value="500">500 m</option>
+      <option value="1000" selected>1 km</option>
+      <option value="2000">2 km</option>
+      <option value="3000">3 km</option>
+    </select>
+    <div class="acciones">
+      <button type="button" id="btn-ruta-gps" class="btn-secondary">📍 Desde mi ubicación</button>
+      <button type="button" id="btn-ruta-punto" class="btn-secondary">🗺️ Elegir punto en el mapa</button>
+      <button type="button" id="btn-ruta-limpiar" class="btn-secondary hidden">Limpiar ruta</button>
+    </div>
+    <p id="ruta-resumen" class="ayuda"></p>
+    <ol id="ruta-lista"></ol>
+  </div>
+  <div id="mapa-general" class="card-form mapa-grande"></div>
+</section>
 
     <!-- ===================== VISTA: LISTA ===================== -->
     <section id="vista-lista" class="vista hidden">
@@ -140,5 +158,6 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <!-- JS Principal -->
   <script src="app.js"></script>
+  <script src="ruta.js"></script>
 </body>
 </html>
