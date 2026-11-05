@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registro de Perritos 🐾</title>
 
-  <!-- CSS de Leaflet (Mapa) -->
+  <!-- CSS de Leaflet (Mapa) hoja de estilos-->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <!-- Estilos propios -->
@@ -31,10 +31,57 @@
       <button data-vista="lista" class="tab">Lista</button>
     </nav>
 
+    <!-- ===================== PANEL: FILTROS (#13) ===================== -->
+    <form id="form-filtros" class="card-form hidden">
+      <h3>Búsqueda combinada</h3>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="f-raza">Raza</label>
+          <select id="f-raza"><option value="">Cualquiera</option></select>
+        </div>
+        <div class="form-group">
+          <label for="f-color">Color</label>
+          <select id="f-color"><option value="">Cualquiera</option></select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="f-desde">Desde</label>
+          <input type="date" id="f-desde">
+        </div>
+        <div class="form-group">
+          <label for="f-hasta">Hasta</label>
+          <input type="date" id="f-hasta">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="f-lat">Latitud</label>
+          <input type="number" step="any" id="f-lat" placeholder="25.4383">
+        </div>
+        <div class="form-group">
+          <label for="f-lon">Longitud</label>
+          <input type="number" step="any" id="f-lon" placeholder="-100.9737">
+        </div>
+        <div class="form-group">
+          <label for="f-metros">Radio (m)</label>
+          <input type="number" min="1" id="f-metros" placeholder="1000">
+        </div>
+      </div>
+
+      <button type="button" id="btn-filtro-gps" class="btn-secondary">📍 Usar mi ubicación para el radio</button>
+      <button type="submit" class="btn-submit"><span>Buscar</span></button>
+      <button type="button" id="btn-filtro-limpiar" class="btn-secondary">Limpiar filtros</button>
+      <small id="filtros-msg" class="help-text"></small>
+    </form>
+
     <!-- ===================== VISTA: REGISTRO ===================== -->
     <section id="vista-registro" class="vista">
       <form id="form-perrito" class="card-form">
-       
+
         <!-- 📸 Fotografía (Cámara / Galería) -->
 <div class="form-group">
   <label>Fotografía <span class="required">*</span></label>
@@ -118,27 +165,171 @@
       </form>
     </section>
 
-    <!-- ===================== VISTA: MAPA ===================== -->
-    <section id="vista-mapa" class="vista hidden">
-      <div id="mapa-general" class="card-form mapa-grande"></div>
-    </section>
+    <!-- ===================== VISTA: MAPA<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Perritos 🐾</title>
 
-    <!-- ===================== VISTA: LISTA ===================== -->
-    <section id="vista-lista" class="vista hidden">
-      <div id="lista-perritos" class="lista"></div>
-    </section>
+  <!-- CSS de Leaflet (Mapa) hoja de estilos-->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-    <!-- ===================== VISTA: DETALLE ===================== -->
-    <section id="vista-detalle" class="vista hidden">
-      <button id="btn-volver-lista" class="btn-secondary">&larr; Volver</button>
-      <div id="detalle-contenido" class="card-form"></div>
-    </section>
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="styles.css">
 
+  <!-- Fuente Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+ <div class="main-container">
+    <header class="header-title">
+      <h1>🐾 Registro de Perritos 🐾</h1>
+      <p>Reporta un perrito de la calle para que rescates y vecinos puedan ubicarlo.</p>
+    </header>
+
+    <!-- Navegación por pestañas -->
+    <nav class="tabs-nav">
+      <button data-vista="registro" class="tab activo">Registrar</button>
+      <button data-vista="mapa" class="tab">Mapa</button>
+      <button data-vista="lista" class="tab">Lista</button>
+    </nav>
+
+    <!-- ===================== PANEL: FILTROS (#13) ===================== -->
+    <form id="form-filtros" class="card-form hidden">
+      <h3>Búsqueda combinada</h3>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="f-raza">Raza</label>
+          <select id="f-raza"><option value="">Cualquiera</option></select>
+        </div>
+        <div class="form-group">
+          <label for="f-color">Color</label>
+          <select id="f-color"><option value="">Cualquiera</option></select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="f-desde">Desde</label>
+          <input type="date" id="f-desde">
+        </div>
+        <div class="form-group">
+          <label for="f-hasta">Hasta</label>
+          <input type="date" id="f-hasta">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="f-lat">Latitud</label>
+          <input type="number" step="any" id="f-lat" placeholder="25.4383">
+        </div>
+        <div class="form-group">
+          <label for="f-lon">Longitud</label>
+          <input type="number" step="any" id="f-lon" placeholder="-100.9737">
+        </div>
+        <div class="form-group">
+          <label for="f-metros">Radio (m)</label>
+          <input type="number" min="1" id="f-metros" placeholder="1000">
+        </div>
+      </div>
+
+      <button type="button" id="btn-filtro-gps" class="btn-secondary">📍 Usar mi ubicación para el radio</button>
+      <button type="submit" class="btn-submit"><span>Buscar</span></button>
+      <button type="button" id="btn-filtro-limpiar" class="btn-secondary">Limpiar filtros</button>
+      <small id="filtros-msg" class="help-text"></small>
+    </form>
+
+    <!-- ===================== VISTA: REGISTRO ===================== -->
+    <section id="vista-registro" class="vista">
+      <form id="form-perrito" class="card-form">
+
+        <!-- 📸 Fotografía (Cámara / Galería) -->
+<div class="form-group">
+  <label>Fotografía <span class="required">*</span></label>
+  <div class="foto-botones">
+    <button type="button" id="btn-tomar-foto" class="btn-secondary">📷 Tomar foto</button>
+    <button type="button" id="btn-elegir-foto" class="btn-secondary">🖼️ Elegir de la galería</button>
   </div>
+  <input type="file" id="foto-camara" accept="image/*" capture="environment" hidden>
+  <input type="file" id="foto-galeria" accept="image/jpeg,image/png,image/webp" hidden>
+  <small class="help-text">Puedes tomar una foto directa con la cámara o elegir una de tu galería (JPG, PNG, WEBP).</small>
+  <div id="preview-container" class="preview-container hidden">
+    <img id="foto-preview" src="" alt="Vista previa de la foto">
+  </div>
+</div>
 
-  <!-- JS de Leaflet (Mapa) -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- JS Principal -->
-  <script src="app.js"></script>
-</body>
-</html>
+        <!-- Nombre -->
+        <div class="form-group">
+          <label for="nombre">Nombre o apodo asignado <span class="required">*</span></label>
+          <input type="text" id="nombre" name="nombre" placeholder="Ej. Solovino, Manchas" required>
+        </div>
+
+        <!-- Raza -->
+        <div class="form-group">
+          <label for="raza_id">Raza</label>
+          <select id="raza_id" name="raza_id">
+            <option value="">Cargando razas...</option>
+          </select>
+        </div>
+
+        <!-- Color Principal (Obligatorio) -->
+        <div class="form-group">
+          <label for="color_principal_id">Color Principal <span class="required">*</span></label>
+          <select id="color_principal_id" name="color_principal_id" required>
+            <option value="" disabled selected>Selecciona el color principal</option>
+          </select>
+        </div>
+
+        <!-- Colores Adicionales (Opcionales, máx 2) -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="color_secundario_1_id">Color adicional 1</label>
+            <select id="color_secundario_1_id" name="color_secundario_1_id">
+              <option value="">Ninguno</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="color_secundario_2_id">Color adicional 2</label>
+            <select id="color_secundario_2_id" name="color_secundario_2_id">
+              <option value="">Ninguno</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 📍 Ubicación en el Mapa -->
+        <div class="form-group">
+          <label>Ubicación donde se vio <span class="required">*</span></label>
+          <button type="button" id="btn-location" class="btn-secondary">
+            📍 Usar mi ubicación actual (GPS)
+          </button>
+          <div id="map" class="map-container"></div>
+          <small class="help-text">Puedes mover el marcador azul en el mapa para ajustar la posición exacta.</small>
+
+          <!-- Coordenadas ocultas que se mandan al backend -->
+          <!-- OJO: sin "required" aquí -- un input hidden con required rompe la
+               validación nativa del navegador. Se valida a mano en app.js. -->
+          <input type="hidden" id="latitud" name="latitud">
+          <input type="hidden" id="longitud" name="longitud">
+        </div>
+
+        <!-- Clave de Idempotencia Oculta -->
+        <input type="hidden" id="idempotency_key" name="idempotency_key">
+
+        <!-- Botón de Envío -->
+        <button type="submit" id="btn-submit" class="btn-submit">
+          <span>Registrar Perrito</span> 🐶
+        </button>
+
+        <!-- Mensaje de estado/error amigable -->
+        <div id="alert-box" class="alert-box hidden"></div>
+      </form>
+    </section>
+
+    <!-- ===================== VISTA: MAPA
