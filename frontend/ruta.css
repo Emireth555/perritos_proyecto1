@@ -1,0 +1,39 @@
+/* ruta.css — estilos de la ruta de rescate (issue #14) */
+
+.panel-ruta {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.panel-ruta .acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.panel-ruta select {
+  max-width: 100%;
+}
+
+#ruta-lista {
+  margin: 0;
+  padding-left: 22px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.marcador-ruta span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #4f46e5;
+  color: #fff;
+  font-weight: 700;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
