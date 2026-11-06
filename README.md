@@ -724,3 +724,37 @@ WantedBy=multi-user.target
 Al frente iría **nginx** (o Caddy) como proxy inverso: recibe las peticiones
 en el puerto 443 con el certificado HTTPS, y las reenvía a Node en el puerto
 3000, que sigue sin ser accesible directamente desde fuera.
+
+## Ruta de rescate (issue #14)
+
+**Qué hace.** Dado un punto de partida y un radio, propone en qué orden visitar a los perros de esa zona usando el vecino más cercano, y calcula la distancia total.
+
+**Cómo se usa en la app.** Pestaña **Mapa**, panel "Ruta de rescate": se elige el radio y se pulsa "Desde mi ubicación" o "Elegir punto en el mapa". El mapa dibuja la línea con las paradas numeradas y debajo aparecen la lista y el total en kilómetros.
+
+**Endpoint.**
+
+`GET /f/ruta?lat=<lat>&lon=<lon>&radio=<metros>` (`radio` es opcional, por omisión 1500)
+
+```json
+{
+  "orden": [
+    {"id": 6, "nombre": "Bella", "lat": 25.4225, "lon": -100.9995, "distancia_m": 92.6},
+    {"id": 18, "nombre": "Chispa", "lat": 25.422, "lon": -100.9994, "distancia_m": 56.5}
+  ],
+  "distancia_total_m": 6312.0
+}
+```
+
+El ejemplo muestra 2 de las 56 paradas que devuelve `GET /f/ruta?lat=25.4232&lon=-101.0&radio=1000`. Cada parada trae `distancia_m`, la distancia desde la parada anterior. Sin `lat` o `lon` responde 400.
+
+**Dónde está lo funcional.**
+
+| Requisito | Dónde |
+|---|---|
+| Núcleo puro separado de la cáscara | `funcional/lib/perritos/geo.ex` y `ruta.ex`; el router solo traduce la petición |
+| Función que regresa una función | `Ruta.distancia_desde/2` |
+| Función que recibe una función | `Ruta.proponer/3` (parámetro `criterio`) |
+| Recursión explícita | `visitar/3` en `ruta.ex` |
+| `Enum.reduce` | `tramos/3` en `ruta.ex` |
+| Pattern matching y cláusulas múltiples | `proponer/3` y `visitar/3` |
+| Pruebas y doctests | `funcional/test/ruta_test.exs` |
