@@ -115,6 +115,28 @@ visitante ──▶ https://….trycloudflare.com
 ### P2.5 Funcionalidades
 
 - **Búsqueda combinada (#13):** (COMPLETAR, tarea de la compañera: qué hace, cómo se usa, endpoint `GET /f/busqueda` con ejemplo de respuesta y dónde están los requisitos del paradigma.)
+**Qué hace.** Busca perritos combinando cualquiera de estos criterios: color, raza, cercanía a un punto (radio en metros) y rango de fechas. Todos son opcionales; sin ninguno devuelve todos los avistamientos.
+
+**Cómo se usa en la app.** En ⟦pantalla/sección⟧ hay un formulario de filtros ⟦campos y botón⟧. Al buscar, los resultados reemplazan la lista y los pines del mapa. El frontend llama a la ruta relativa `/f/busqueda`, nunca a `localhost`.
+
+**Endpoint:** `GET /f/busqueda`, con parámetros opcionales `color`, `raza`, `lat`, `lon` y `radio` (metros; van juntos), `desde` y `hasta` (`AAAA-MM-DD`).
+
+Ejemplo: `GET /f/busqueda?color=Negro&lat=25.426&lon=-100.9959&radio=2000`
+
+```json
+⟦pega aquí la respuesta real de tu curl⟧
+```
+
+**Dónde está lo funcional** (núcleo en `funcional/lib/perritos/busqueda.ex`; cáscara en `router.ex` y `datos.ex`):
+
+| Requisito | Dónde |
+|---|---|
+| Núcleo puro | `Perritos.Busqueda`: no consulta la base, no recibe `conn`, no lee el reloj ni imprime |
+| Orden superior | `por_color/1`, `por_raza/1`, `por_radio/3` y `por_fechas/2` regresan una función; `aplicar_filtro/2` recibe una |
+| Recursión | `todos/1` (Y) y `alguno/1` (O), con cláusulas `[]` y `[h \| t]` |
+| `Stream` | `aplicar_filtro/2` filtra con `Stream.filter` y arma la lista al final |
+| Pruebas | `funcional/test/busqueda_test.exs`: ⟦N⟧ pruebas y doctests, con casos borde |
+
 - **Ruta de rescate (#14):** ver la sección "Ruta de rescate (issue #14)" al final de este documento.
 
 ### P2.6 Cómo correr las pruebas
