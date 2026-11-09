@@ -6,6 +6,7 @@ Aplicación web para registrar perritos de la calle: quien encuentra uno le toma
 
 ## Contenido
 
+0. [Proyecto 2] (#Proyecto 2: Elixir, Docker y túnel de Cloudflare)
 1. [Integrantes y roles](#1-integrantes-y-roles)
 2. [Requisitos previos](#2-requisitos-previos)
 3. [Instalación](#3-instalación)
@@ -18,6 +19,112 @@ Aplicación web para registrar perritos de la calle: quien encuentra uno le toma
 10. [Problemas comunes](#10-problemas-comunes)
 11. [Paradigmas e idempotencia](#11-paradigmas-e-idempotencia)
 12. [Despliegue (punto extra)](#12-despliegue-punto-extra)
+
+## Proyecto 2: Elixir, Docker y túnel de Cloudflare
+
+Esta es la siguiente versión de la app del Proyecto 1, en el mismo repositorio. **Para levantar y entender el P2, siga esta sección.** Las secciones numeradas del 1 al 12 más abajo describen el P1; en particular, las instrucciones de `node server.js` (sección 6) y de `cloudflared` a mano (sección 7.2) ya no se usan: ahora todo lo levanta Docker.
+
+### P2.1 Integrantes y funcionalidad de cada quien
+
+| Integrante (GitHub) | Funcionalidad en Elixir | Issue |
+|---|---|---|
+| Emireth555 Johana Emireth Cerda Flores | Búsqueda combinada | #13 |
+| Memo8aaaa Estrella Luna Vázquez | Ruta de rescate | #14 |
+
+### P2.2 Del P1 al P2
+
+**Qué había al terminar el P1:** un frontend en HTML, CSS y JavaScript con mapa Leaflet, un backend en Node.js (puerto 3000) y una base de datos MySQL. Se levantaba a mano: `node server.js` y un túnel de Cloudflare abierto con `cloudflared` en otra ventana.
+
+**Qué se agregó:**
+
+- `docker-compose.yml` en la raíz, que levanta los seis servicios: `frontend`, `backend`, `bd` (MySQL), `funcional` (Elixir), `proxy` (nginx) y `tunel` (Cloudflare).
+- `proxy/nginx.conf`: única puerta de entrada. Reparte `/` al frontend, `/api/` al backend y `/f/` al servicio Elixir.
+- `funcional/`: servicio en Elixir (Plug + Bandit + MyXQL) con las funcionalidades nuevas y sus pruebas.
+- `backend/Dockerfile` y `funcional/Dockerfile` (este último en dos etapas, con `mix release`).
+- `database/04_avistamientos_masivos.sql`: 100 avistamientos de muestra más 8 posibles duplicados, montado en el compose para que una base nueva nazca con 123 perros.
+- Endpoints nuevos: `GET /f/busqueda` y `GET /f/ruta`.
+- Frontend: panel de filtros (búsqueda combinada) y panel "Ruta de rescate" en la pestaña Mapa (`frontend/ruta.js` y `frontend/ruta.css`).
+
+**Qué se modificó del código anterior:**
+
+- `frontend/index.html` y `frontend/app.js`: se agregaron los paneles y la lógica de las dos funcionalidades. El frontend ya llamaba al backend con rutas relativas (`/api/...`), por lo que no hubo que cambiar eso.
+- El código del backend del P1 no cambió; solo se le agregó su `Dockerfile`.
+- El modelo de datos es el mismo; no se agregaron tablas ni columnas.
+
+### P2.3 Cómo levantarla con Docker (desde un clon limpio)
+
+Requisito: Docker Desktop (o Docker Engine con Compose).
+
+1. Clonar y entrar a la carpeta:
+   ```bash
+   git clone https://github.com/Emireth555/perritos_proyecto1.git
+   cd perritos_proyecto1
+   ```
+2. Crear el archivo de configuración y poner las contraseñas (`BD_ROOT_PASSWORD`, `BD_NOMBRE`, `BD_USUARIO`, `BD_PASSWORD`):
+   ```bash
+   cp .env.example .env
+   ```
+   En PowerShell: `Copy-Item .env.example .env`
+3. Levantar todo:
+   ```bash
+   docker compose up --build
+   ```
+4. En otra terminal, con el sistema corriendo, copiar las fotos de prueba al volumen (solo la primera vez):
+   ```bash
+   docker compose cp database/imagenes_prueba/. backend:/imagenes/
+   ```
+5. Abrir <http://localhost:8081>.
+6. Obtener la URL pública del túnel:
+   ```bash
+   docker compose logs tunel | grep trycloudflare
+   ```
+   En PowerShell: `docker compose logs tunel | Select-String trycloudflare`
+
+Notas:
+
+- La URL del túnel cambia cada vez que se recrea el contenedor `tunel`. Si el log muestra `Tunnel not found`, se recrea con `docker compose up -d --force-recreate tunel` y se usa la URL nueva.
+- El proxy usa el puerto **8081** en local porque el 8080 suele estar ocupado por otros programas.
+- `docker compose down -v` borra los volúmenes (base de datos y fotos). Para apagar sin perder datos, usar `docker compose down`.
+
+### P2.4 Arquitectura
+
+```
+visitante ──▶ https://….trycloudflare.com
+                      │
+                      ▼
+              túnel (cloudflared)
+                      │
+                      ▼
+               proxy (nginx) ───────────────────────┐
+                 │ /              │ /api/           │ /f/
+                 ▼                ▼                 ▼
+          frontend (P1)     backend (P1)    servicio Elixir (P2)
+                                  │         ┌────────────────────┐
+                                  │         │ CÁSCARA: router,   │
+                                  │         │ consulta, JSON     │
+                                  │         │  ┌──────────────┐  │
+                                  │         │  │ NÚCLEO PURO  │  │
+                                  │         │  └──────────────┘  │
+                                  │         └─────────┬──────────┘
+                                  ▼                   ▼
+                              base de datos MySQL (P1) ◀
+```
+
+**Cómo obtiene los datos el servicio Elixir: opción A, directo a la base de datos.** `Perritos.Application` arranca un pool de MyXQL (`:db`) y `Perritos.Datos` es la única puerta a MySQL: solo ejecuta `SELECT` y convierte las filas en structs `Perritos.Avistamiento`. El núcleo de cada funcionalidad es puro y nunca sabe de dónde vinieron los datos.
+
+### P2.5 Funcionalidades
+
+- **Búsqueda combinada (#13):** (COMPLETAR, tarea de la compañera: qué hace, cómo se usa, endpoint `GET /f/busqueda` con ejemplo de respuesta y dónde están los requisitos del paradigma.)
+- **Ruta de rescate (#14):** ver la sección "Ruta de rescate (issue #14)" al final de este documento.
+
+### P2.6 Cómo correr las pruebas
+
+```bash
+docker compose run --rm herramientas mix test
+```
+
+No necesita la base de datos ni el servidor: prueba solo el núcleo. Al momento de escribir esto, el resultado es `15 doctests, 19 tests, 0 failures`.
+
 
 ---
 
